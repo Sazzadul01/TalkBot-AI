@@ -34,6 +34,18 @@ const SEARCH_TRIGGERS = [
   "search",
   "look up",
   "find",
+  "update",
+  "updates",
+  "live",
+  "breaking",
+  "trend",
+  "trending",
+  "bangladesh",
+  "sports",
+  "football",
+  "cricket",
+  "match",
+  "result", 
 ];
 
 function shouldSearch(text: string): boolean {
@@ -292,7 +304,7 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
     recognition.lang = "en-US";
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      if (isSpeaking) return;
+      if (isSpeaking) return;  // Add line
       const current = event.resultIndex;
       const result = event.results[current];
       const transcriptText = result[0].transcript.toLowerCase();
