@@ -4,6 +4,6 @@
 npm run dev
 
 # Some Important Command
-npm install
+npm install            
 http://localhost:3000
 
