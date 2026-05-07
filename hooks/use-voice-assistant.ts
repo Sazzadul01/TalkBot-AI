@@ -55,6 +55,7 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   const [isRecognitionActive, setIsRecognitionActive] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string>("Systems initializing...");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false); // New Add
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -204,6 +205,12 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   // Text-to-speech via ElevenLabs
   const speakResponse = useCallback(
     async (text: string) => {
+      setIsSpeaking(true);
+
+      if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      }
+
       updateState("speaking", "Transmitting audio response...");
 
       try {
@@ -230,22 +237,37 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
           updateState("idle", "Audio transmission failed...");
           setIsWakeWordActive(false);
         };
-        
+        //New Add
         audioRef.current.onended = () => {
-          updateState("idle", "Standing by...");
-          setIsWakeWordActive(false);
-          URL.revokeObjectURL(audioUrl);
-        };
+  setIsSpeaking(false);
+
+  updateState("idle", "Standing by...");
+  setIsWakeWordActive(false);
+
+  URL.revokeObjectURL(audioUrl);
+
+  if (recognitionRef.current && isRecognitionActive) {
+    recognitionRef.current.start();
+  }
+};
 
         await audioRef.current.play();
       } catch (err) {
         console.error("Speech synthesis error:", err);
         // Fallback to browser TTS
         const utterance = new SpeechSynthesisUtterance(text);
+        // new add 
         utterance.onend = () => {
-          updateState("idle", "Standing by...");
-          setIsWakeWordActive(false);
-        };
+  setIsSpeaking(false);
+
+  updateState("idle", "Standing by...");
+  setIsWakeWordActive(false);
+
+  if (recognitionRef.current && isRecognitionActive) {
+    recognitionRef.current.start();
+  }
+};
+
         speechSynthesis.speak(utterance);
       }
     },
@@ -270,6 +292,7 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
     recognition.lang = "en-US";
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
+      if (isSpeaking) return;
       const current = event.resultIndex;
       const result = event.results[current];
       const transcriptText = result[0].transcript.toLowerCase();
