@@ -218,11 +218,16 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   const speakResponse = useCallback(
     async (text: string) => {
       setIsSpeaking(true);
-
+/*
       if (recognitionRef.current) {
       recognitionRef.current.stop();
       }
+*/
+setIsRecognitionActive(false);
 
+if (recognitionRef.current) {
+  recognitionRef.current.stop();
+}
       updateState("speaking", "Transmitting audio response...");
 
       try {
@@ -257,10 +262,16 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   setIsWakeWordActive(false);
 
   URL.revokeObjectURL(audioUrl);
-
+/*
   if (recognitionRef.current && isRecognitionActive) {
     recognitionRef.current.start();
   }
+    */
+   setIsRecognitionActive(true);
+
+if (recognitionRef.current) {
+  recognitionRef.current.start();
+}
 };
 
         await audioRef.current.play();
@@ -274,10 +285,16 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
 
   updateState("idle", "Standing by...");
   setIsWakeWordActive(false);
-
+/*
   if (recognitionRef.current && isRecognitionActive) {
     recognitionRef.current.start();
   }
+    */
+   setIsRecognitionActive(true);
+
+if (recognitionRef.current) {
+  recognitionRef.current.start();
+}
 };
 
         speechSynthesis.speak(utterance);
