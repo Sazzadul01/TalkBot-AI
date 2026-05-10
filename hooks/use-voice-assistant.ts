@@ -308,9 +308,17 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
       const current = event.resultIndex;
       const result = event.results[current];
       const transcriptText = result[0].transcript.toLowerCase();
-
+/*
       // Voice Commands
       if (transcriptText.includes("stop")) {
+  stopListening();
+  updateState("idle", "Voice channel stopped...");
+  return;
+}
+*/
+// Stop Commad
+if (transcriptText.includes("stop")) {
+  setTranscript("stop");
   stopListening();
   updateState("idle", "Voice channel stopped...");
   return;
@@ -358,7 +366,7 @@ if (result.isFinal && result[0].transcript.trim()) {
         setError(`Speech recognition error: ${event.error}`);
       }
     };
-
+/*
     recognition.onend = () => {
       // Only restart if recognition is supposed to be active and permission is granted
       if (isRecognitionActive && permissionStatus === "granted") {
@@ -370,6 +378,22 @@ if (result.isFinal && result[0].transcript.trim()) {
         }
       }
     };
+*/
+// Voice not Start Automatic
+recognition.onend = () => {
+  
+  if (
+    isRecognitionActive &&
+    permissionStatus === "granted" &&
+    !transcript.includes("stop")
+  ) {
+    try {
+      recognition.start();
+    } catch (e) {
+      setIsRecognitionActive(false);
+    }
+  }
+};
 
     return recognition;
   }, [
